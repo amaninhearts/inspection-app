@@ -232,10 +232,7 @@ def load_data():
 
         # Clean location
         df["Location"] = df["Location"].astype(str).str.strip().str.upper()
-        df["Location"] = df["Location"].apply(
-            lambda x: x if x in [loc.upper() for loc in footplate_list] else ""
-        )
-
+        lambda x: x if x.strip().upper() in {loc.upper() for loc in footplate_list} else x
         return df
 
     except Exception as e:
@@ -285,7 +282,7 @@ def update_feedback_column(edited_df):
     if updates:
         # Execute batch update in a single request
         body = {"valueInputOption": "USER_ENTERED", "data": updates}
-        sheet.spreadsheet.values_batch_update(body)
+        sheet.spreadsheet.batch_update(body)
 
 
 
@@ -398,7 +395,8 @@ with tabs[0]:
     # Filters
     start_date, end_date = st.date_input(
         "📅 Select Date Range",
-        [df["Date of Inspection"].min(), df["Date of Inspection"].max()],
+        min_date = df["Date of Inspection"].dropna().min()
+        max_date = df["Date of Inspection"].dropna().max()
         key="view_date_range"
     )
 
@@ -598,6 +596,7 @@ if st.button("✅ Submit Feedback"):
     st.success(f"✅ Feedback updated for {len(edited_df)} rows in Google Sheet")
 
                
+
 
 
 
